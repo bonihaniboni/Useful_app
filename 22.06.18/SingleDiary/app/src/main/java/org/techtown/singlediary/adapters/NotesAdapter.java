@@ -14,6 +14,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.makeramen.roundedimageview.RoundedImageView;
 
 import org.techtown.singlediary.R;
@@ -31,6 +33,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NoteViewHold
     private NotesListener notesListener;
     private List<Note> notesSource;
     private Timer timer;
+
 
     public NotesAdapter(List<Note> notes, NotesListener notesListener) {
         this.notes = notes;

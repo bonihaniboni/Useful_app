@@ -10,6 +10,17 @@ import java.io.Serializable;
 @Entity(tableName = "notes")
 public class Note implements Serializable {
 
+    public Note(){
+    }
+
+    public Note(String title, String subtitle, String noteText, String dateTime, String color) {
+        this.title = title;
+        this.subtitle = subtitle;
+        this.dateTime = dateTime;
+        this.noteText = noteText;
+        this.color = color;
+    }
+
     @PrimaryKey(autoGenerate = true)
     private int id;
 

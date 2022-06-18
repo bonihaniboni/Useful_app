@@ -1,5 +1,6 @@
 package org.techtown.singlediary.activities;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,6 +17,15 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import org.techtown.singlediary.R;
 import org.techtown.singlediary.activities.CreateNoteActivity;
 import org.techtown.singlediary.adapters.NotesAdapter;
@@ -31,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
     public static final int REQUEST_CODE_ADD_NOTE = 1;
     public static final int REQUEST_CODE_UPDATE_NOTE = 2;
     public static final int REQUEST_CODE_SHOW_NOTES = 3;
+
+    private final FirebaseFirestore mStore = FirebaseFirestore.getInstance();
 
     private RecyclerView notesRecyclerView;
     private List<Note> noteList;
@@ -59,8 +71,26 @@ public class MainActivity extends AppCompatActivity implements NotesListener {
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
 
         noteList = new ArrayList<>();
-        notesAdapter = new NotesAdapter(noteList,this);
-        notesRecyclerView.setAdapter(notesAdapter);
+        //notesAdapter = new NotesAdapter(noteList,this);
+        //notesRecyclerView.setAdapter(notesAdapter);
+
+        mStore.collection("note")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
+                    for(DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()){
+                        String title = (String) dc.getDocument().getData().get("title");
+                        String subtitle = (String) dc.getDocument().getData().get("subtitle");
+                        String noteText = (String) dc.getDocument().getData().get("noteText");
+                        String time = (String) dc.getDocument().getData().get("time");
+                        String color = (String) dc.getDocument().getData().get("color");
+                        Note data = new Note(title, subtitle, noteText, time, color);
+                        noteList.add(data);
+                    }
+                    notesAdapter = new NotesAdapter(noteList, MainActivity.this);
+                    notesRecyclerView.setAdapter(notesAdapter);
+                }
+        });
 
         getNotes(REQUEST_CODE_SHOW_NOTES,false);
 
